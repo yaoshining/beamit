@@ -16,8 +16,9 @@
 - Tailwind CSS（样式）
 - Vite（构建工具）
 - Vitest（测试框架）
+- Allure（测试报告生成）
 **存储**：chrome.storage.local（扩展配置）、chrome.storage.session（会话数据）
-**测试**：Vitest（单元测试 + 集成测试）
+**测试**：Vitest（单元测试 + 集成测试）+ Playwright（E2E）+ Allure（报告）
 **目标平台**：Chrome 浏览器（Manifest V3）
 **项目类型**：Chrome 扩展应用
 **性能目标**：
@@ -43,6 +44,8 @@
 | 代码审查 | ⚠️ | MVP 阶段可简化，正式发布前需完善 |
 | 性能要求 | ✅ | 内存 ≤ 50MB，启动 ≤ 500ms |
 | 安全与隐私 | ✅ | 数据本地化，权限最小化 |
+| CI/CD 工作流 | ✅ | GitHub Actions 自动测试 |
+| 测试报告 | ✅ | Allure 报告，历史保留在 gh-pages |
 
 *GATE：必须在 Phase 0 研究前通过。Phase 1 设计后重新检查。*
 
@@ -70,6 +73,7 @@ beamit-chrome-ext/
 ├── tailwind.config.js     # Tailwind CSS 配置
 ├── tsconfig.json          # TypeScript 配置
 ├── vitest.config.ts       # Vitest 测试配置
+├── allure.properties      # Allure 报告配置
 │
 ├── src/
 │   ├── manifest.ts        # 扩展清单（Vite 入口）
@@ -126,6 +130,31 @@ beamit-chrome-ext/
 
 **结构决策**：使用 Plasmo 框架的标准目录结构，background/ 和 content/ 作为独立入口点，popup/ 使用 React SPA 模式。
 
+## 测试报告配置
+
+### Allure 报告设置
+
+测试报告使用 Allure 3 风格，保留历史记录：
+- **报告访问**：`https://[username].github.io/beamit-chrome-ext/allure/`
+- **历史保留**：通过 GitHub Actions 上传 allure-results/history 到 artifact
+- **保留策略**：最近 30 次成功的测试报告历史
+
+### 报告生成流程
+
+```
+Vitest 运行测试 → 生成 JUnit XML → Allure generate → 上传到 gh-pages
+                                      ↑
+                           下载上次的 history → 合并到当前报告
+```
+
+### npm 脚本
+
+| 命令 | 说明 |
+|------|------|
+| `npm run test:report` | 运行测试并生成 Allure 报告 |
+| `npm run test:report:allure` | 只生成 Allure 报告（需要先运行测试） |
+| `npm run test:open` | 打开 Allure 报告预览 |
+
 ## 复杂度跟踪
 
 > **仅在章程检查有违规需要论证时填写**
@@ -141,7 +170,7 @@ beamit-chrome-ext/
 1. 研究 Plasmo 框架的 Service Worker 和 Content Script 配置
 2. 研究 DLNA 协议在浏览器环境中的实现方式
 3. 研究视频流检测的最佳实践（HLS/DASH 解析）
-4. 研究 Tailwind CSS 在 Plasmo popup 中的配置
+4. 研究 Allure 测试报告集成
 
 ### Phase 1：设计和合约
 
