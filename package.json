@@ -2,8 +2,6 @@
   "name": "@beamit/extension",
   "version": "0.1.0",
   "description": "Chrome扩展：抓取网页视频流并投屏到电视",
-  "main": "src/background/index.ts",
-  "types": "src/manifest.ts",
   "scripts": {
     "dev": "plasmo dev",
     "build": "plasmo build",

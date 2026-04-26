@@ -57,9 +57,9 @@
 
 ### US1 测试（TDD - 先编写测试，确保失败）
 
-- [ ] T017 [P] [US1] 创建 VideoSource 检测测试 in src/tests/unit/detectors/media-detector.test.ts
-- [ ] T018 [P] [US1] 创建 DLNA 设备发现测试 in src/tests/unit/devices/dlna-discover.test.ts
-- [ ] T019 [US1] 创建 DLNA 播放控制集成测试 in src/tests/integration/dlna-player.test.ts
+- [x] T017 [P] [US1] 创建 VideoSource 检测测试 in src/tests/unit/detectors/media-detector.test.ts
+- [x] T018 [P] [US1] 创建 DLNA 设备发现测试 in src/tests/unit/devices/dlna-discover.test.ts
+- [x] T019 [US1] 创建 DLNA 播放控制集成测试 in src/tests/integration/dlna-player.test.ts
 
 ### US1 实现
 
@@ -69,9 +69,9 @@
 - [x] T023 [P] [US1] 实现 IframeDetector（检测内嵌播放器）in src/content/detectors/iframe-detector.ts
 - [x] T024 [US1] 实现 VideoDetector 聚合器 in src/content/detectors/index.ts
 - [x] T025 [US1] 实现 DLNA 设备发现服务 in src/background/devices/dlna-discover.ts
-- [ ] T026 [US1] 实现 DeviceManager（设备状态管理）in src/background/devices/device-manager.ts
-- [ ] T027 [US1] 实现 DLNA 播放器控制 in src/background/casting/dlna-player.ts
-- [ ] T028 [US1] 实现 PlaybackController（播放状态控制）in src/background/casting/playback-controller.ts
+- [x] T026 [US1] 实现 DeviceManager（设备状态管理）in src/background/devices/device-manager.ts
+- [x] T027 [US1] 实现 DLNA 播放器控制 in src/background/casting/dlna-player.ts
+- [x] T028 [US1] 实现 PlaybackController（播放状态控制）in src/background/casting/playback-controller.ts
 - [x] T029 [US1] 创建 Content Script 入口 in src/content/index.ts
 - [x] T030 [US1] 创建 Background Service Worker 入口 in src/background/index.ts
 - [x] T031 [US1] 实现消息传递机制（content ↔ background）

@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "module": "ESNext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
@@ -16,14 +20,35 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@shared/*": ["src/shared/*"],
-      "@background/*": ["src/background/*"],
-      "@content/*": ["src/content/*"],
-      "@popup/*": ["src/popup/*"]
+      "@/*": [
+        "src/*"
+      ],
+      "@shared/*": [
+        "src/shared/*"
+      ],
+      "@background/*": [
+        "src/background/*"
+      ],
+      "@content/*": [
+        "src/content/*"
+      ],
+      "@popup/*": [
+        "src/popup/*"
+      ]
     },
-    "types": ["chrome", "node"]
+    "types": [
+      "chrome",
+      "node"
+    ]
   },
-  "include": ["src/**/*", ".plasmo/**/*"],
-  "exclude": ["node_modules", "dist", "build"]
+  "include": [
+    ".plasmo/index.d.ts",
+    "src/**/*",
+    ".plasmo/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build"
+  ]
 }
