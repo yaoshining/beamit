@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:body {
+  @apply bg-gray-50 text-gray-900 font-sans;
+  min-width: 400px;
+  min-height: 600px;
+}
+
+.btn-primary {
+  @apply bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors;
+}
+
+.btn-secondary {
+  @apply bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors;
+}
+
+.card {
+  @apply bg-white rounded-xl shadow-sm border border-gray-100 p-4;
+}
+
+.loading-spinner {
+  @apply animate-spin h-5 w-5 text-primary-600;
+}
+
+.toast {
+  @apply fixed bottom-4 right-4 bg-gray-900 text-white px-4 py-2 rounded-lg shadow-lg;
+}

@@ -124,7 +124,7 @@ export function safeJsonParse<T>(json: string, fallback: T): T {
  * Check if running in Chrome extension context
  */
 export function isExtensionContext(): boolean {
-  return typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id;
+  return typeof chrome !== 'undefined' && !!chrome.runtime && !!chrome.runtime.id;
 }
 
 /**

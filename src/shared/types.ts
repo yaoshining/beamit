@@ -1,8 +1,3 @@
-// Chrome Extension Type Declarations
-declare module 'plasmo' {
-  export const defineConfig: (config: any) => any;
-}
-
 // Video Types
 export type VideoType = 'media' | 'hls' | 'dash' | 'iframe';
 

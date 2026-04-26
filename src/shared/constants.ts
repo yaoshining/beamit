@@ -1,14 +1,24 @@
 // DLNA/SSDP Constants
+export const SSDP_MULTICAST_ADDRESS = '239.255.255.250';
+export const SSDP_PORT = 1900;
+export const SSDP_ST = 'urn:schemas-upnp-org:device:MediaRenderer:1';
+export const SSDP_TIMEOUT = 5000;
+export const SSDP_SEARCH_TARGETS = [
+  'urn:schemas-upnp-org:device:MediaRenderer:1',
+  'urn:schemas-upnp-org:device:MediaServer:1',
+  'ssdp:all'
+] as const;
+
 export const DLNA_CONSTANTS = {
-  SSDP_MULTICAST_ADDRESS: '239.255.255.250',
-  SSDP_PORT: 1900,
-  SSDP_ST: 'urn:schemas-upnp-org:device:MediaRenderer:1',
+  SSDP_MULTICAST_ADDRESS,
+  SSDP_PORT,
+  SSDP_ST,
   SSDP_MSEARCH: [
     'M-SEARCH * HTTP/1.1',
-    'HOST: 239.255.255.250:1900',
+    `HOST: ${SSDP_MULTICAST_ADDRESS}:${SSDP_PORT}`,
     'MAN: "ssdp:discover"',
     'MX: 3',
-    'ST: urn:schemas-upnp-org:device:MediaRenderer:1'
+    `ST: ${SSDP_ST}`
   ].join('\r\n'),
   SSDP_RESPONSE_MATCH: 'HTTP/1.1 200 OK',
   DEVICE_DISCOVERY_TIMEOUT: 5000,
