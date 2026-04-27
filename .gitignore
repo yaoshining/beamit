@@ -1,0 +1,17 @@
+# Plasmo build outputs
+.plasmo/
+build/
+
+# IDE
+.DS_Store
+*.swp
+
+# Dependencies
+node_modules/
+
+# pnpm
+pnpm-lock.yaml
+-e 
+# Allure
+allure-results/
+allure-report/

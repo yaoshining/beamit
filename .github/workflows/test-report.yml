@@ -18,6 +18,9 @@ jobs:
   test-and-report:
     name: Generate Allure Test Report
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
 
@@ -34,24 +37,15 @@ jobs:
         run: npm install -g allure-commandline
 
       - name: Run all tests with JUnit output
-        run: npm run test:report:allure
-
-      - name: Download existing Allure history
-        id: download-history
-        uses: actions/download-artifact@v4
-        with:
-          name: allure-history
-          path: allure-results/history
-        continue-on-error: true
+        run: npm run test:report
 
       - name: Generate Allure report
-        run: allure generate allure-results --clean
-
-      - name: Serve Allure report
         run: |
-          echo "Allure report generated at: ${{ github.server_url }}/${{ github.repository }}/pages"
-          # 预览模式保持报告可访问
-          ls -la allure-report/
+          if [ -d "allure-results" ]; then
+            allure generate allure-results --clean
+          else
+            echo "No allure results found, skipping report generation"
+          fi
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -62,14 +56,8 @@ jobs:
           path: allure-report/
 
       - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v4
-
-      - name: Upload Allure history for next run
-        uses: actions/upload-artifact@v4
-        with:
-          name: allure-history
-          path: allure-results/history
-          retention-days: 30
 
   test-coverage:
     name: Test Coverage Report
@@ -89,12 +77,9 @@ jobs:
       - name: Run tests with coverage
         run: npm run test:coverage
 
-      - name: Generate coverage report
-        run: npm run test:coverage:html
-
       - name: Archive coverage
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
-          path: coverage-report/
+          path: coverage/
           retention-days: 10
