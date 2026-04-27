@@ -132,7 +132,7 @@ describe('MediaDetector', () => {
       };
 
       // Should return null for videos without src
-      const hasValidSrc = video.src && video.src.length > 0;
+      const hasValidSrc = !!(video.src && video.src.length > 0);
       expect(hasValidSrc).toBe(false);
     });
   });

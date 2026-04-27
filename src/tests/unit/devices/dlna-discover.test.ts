@@ -23,7 +23,7 @@ describe('DLNADiscoveryService', () => {
     it('should parse valid SSDP response', () => {
       // Simulate parsing logic
       const headers: Record<string, string> = {};
-      const lines = mockSSDPResponse.split('\r\n');
+      const lines = mockSSDPResponse.replace(/\r\n/g, '\n').split('\n');
 
       for (const line of lines) {
         const colonIndex = line.indexOf(':');
