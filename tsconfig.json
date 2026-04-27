@@ -43,12 +43,12 @@
   },
   "include": [
     ".plasmo/index.d.ts",
-    "src/**/*",
-    ".plasmo/**/*"
+    "src/**/*"
   ],
   "exclude": [
     "node_modules",
     "dist",
-    "build"
+    "build",
+    ".plasmo/static/**/*"
   ]
 }
