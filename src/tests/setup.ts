@@ -1,5 +1,5 @@
 // Test setup file
-import { beforeAll, afterEach, afterAll } from 'vitest';
+import { beforeAll, afterEach, afterAll, vi } from 'vitest';
 
 // Mock chrome API for tests
 beforeAll(() => {

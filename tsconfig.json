@@ -38,7 +38,8 @@
     },
     "types": [
       "chrome",
-      "node"
+      "node",
+      "vitest/globals"
     ]
   },
   "include": [
