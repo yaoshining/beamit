@@ -18,6 +18,32 @@
       },
       "registered_skills": [],
       "installed_at": "2026-04-26T12:31:43.022181+00:00"
+    },
+    "issue": {
+      "version": "1.0.0",
+      "source": "local",
+      "manifest_hash": "sha256:33da4b7ddf4cf77a57aa4822738f261c81033189cacea2934051ad964d451fea",
+      "enabled": true,
+      "priority": 10,
+      "registered_commands": {
+        "agy": [
+          "speckit.issue.import",
+          "speckit.issue.link",
+          "speckit.issue.sync"
+        ],
+        "codex": [
+          "speckit.issue.import",
+          "speckit.issue.link",
+          "speckit.issue.sync"
+        ],
+        "roo": [
+          "speckit.issue.import",
+          "speckit.issue.link",
+          "speckit.issue.sync"
+        ]
+      },
+      "registered_skills": [],
+      "installed_at": "2026-04-26T14:08:01.761032+00:00"
     }
   }
 }
