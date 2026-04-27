@@ -155,8 +155,13 @@ export class DLNADiscoveryService {
       const deviceName = this.extractDeviceName(headers, st, url);
       const deviceType = this.detectDeviceType(st, headers);
 
+      // Use USN (unique service name) for stable device identity across discoveries
+      // Fall back to generateUUID() if no USN is available
+      const usn = headers['usn'] || '';
+      const stableId = usn ? `dlna-${usn.replace(/[^a-zA-Z0-9_-]/g, '_')}` : generateUUID();
+
       return {
-        id: generateUUID(),
+        id: stableId,
         name: deviceName,
         type: deviceType,
         protocol: 'dlna',

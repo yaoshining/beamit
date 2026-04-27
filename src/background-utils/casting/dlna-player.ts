@@ -21,6 +21,10 @@ const PLAYBACK_STATE: PlaybackState = {
 };
 
 const AV_TRANSPORT_SERVICE = 'urn:schemas-upnp-org:service:AVTransport:1';
+const RENDERING_CONTROL_SERVICE = 'urn:schemas-upnp-org:service:RenderingControl:1';
+
+/** Default timeout (ms) for DLNA device HTTP requests */
+const DLNA_REQUEST_TIMEOUT_MS = 8000;
 
 /**
  * XML-escape special characters in a string value.
@@ -77,19 +81,29 @@ async function sendToDevice(
   device: CastingDevice,
   service: string,
   action: string,
-  body: string
+  body: string,
+  timeoutMs: number = DLNA_REQUEST_TIMEOUT_MS
 ): Promise<string> {
   const controlPath = getControlEndpoint(service);
   const url = `http://${device.address}:${device.port || 1900}${controlPath}`;
 
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'text/xml; charset="utf-8"',
-      SOAPACTION: `"${service}#${action}"`
-    },
-    body
-  });
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'text/xml; charset="utf-8"',
+        SOAPACTION: `"${service}#${action}"`
+      },
+      body,
+      signal: controller.signal
+    });
+  } finally {
+    clearTimeout(timer);
+  }
 
   if (!response.ok) {
     throw new Error(`DLNA request failed: ${response.status} ${response.statusText}`);
@@ -206,6 +220,22 @@ export async function getPosition(device: CastingDevice): Promise<number> {
 /**
  * Get current playback state
  */
+/**
+ * Set volume on DLNA device via RenderingControl::SetVolume
+ */
+export async function setVolume(device: CastingDevice, volume: number): Promise<void> {
+  const clampedVolume = Math.max(0, Math.min(100, Math.round(volume)));
+  const soapBody = createAVTransportSoap('SetVolume', {
+    InstanceID: '0',
+    Channel: 'Master',
+    DesiredVolume: String(clampedVolume)
+  });
+
+  await sendToDevice(device, RENDERING_CONTROL_SERVICE, 'SetVolume', soapBody);
+  PLAYBACK_STATE.volume = clampedVolume;
+  console.log('[DLNAPlayer] Volume set to:', clampedVolume);
+}
+
 export function getPlaybackState(): PlaybackState {
   return { ...PLAYBACK_STATE };
 }
@@ -304,5 +334,6 @@ export default {
   getPosition,
   getPlaybackState,
   startCasting,
-  stopCasting
+  stopCasting,
+  setVolume
 };

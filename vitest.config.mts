@@ -27,6 +27,7 @@ export default defineConfig({
       '@': resolve(__dirname, 'src'),
       '@shared': resolve(__dirname, 'src/shared'),
       '@background': resolve(__dirname, 'src/background'),
+      '@background-utils': resolve(__dirname, 'src/background-utils'),
       '@content': resolve(__dirname, 'src/content'),
       '@popup': resolve(__dirname, 'src/popup')
     }

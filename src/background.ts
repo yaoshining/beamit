@@ -46,6 +46,19 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 });
 
 /**
- * Clean up on extension startup
+ * Bootstrap on every service worker start
+ * MV3 service workers can be terminated when idle and restarted on events.
+ * onInstalled only fires on install/update, so we must also restore
+ * sessions here to survive worker cycling.
  */
-console.log('[Background] Service worker started');
+(async () => {
+  console.log('[Background] Service worker started');
+  try {
+    const session = await restoreSession();
+    if (session) {
+      console.log('[Background] Restored session on startup:', session.id);
+    }
+  } catch (error) {
+    console.warn('[Background] Failed to restore session on startup:', error);
+  }
+})();

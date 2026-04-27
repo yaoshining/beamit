@@ -202,10 +202,19 @@ export async function getCurrentPosition(device: CastingDevice): Promise<number>
 /**
  * Set volume (0-100)
  */
-export async function setVolume(_device: CastingDevice, volume: number): Promise<void> {
-  state.volume = Math.max(0, Math.min(100, volume));
-  notifyListeners();
-  console.log('[PlaybackController] Volume set to:', state.volume);
+export async function setVolume(device: CastingDevice, volume: number): Promise<void> {
+  const clampedVolume = Math.max(0, Math.min(100, volume));
+  try {
+    // Send SetVolume SOAP command to the DLNA device
+    await dlnaPlayer.setVolume(device, clampedVolume);
+    state.volume = clampedVolume;
+    notifyListeners();
+    console.log('[PlaybackController] Volume set to:', clampedVolume);
+  } catch (error) {
+    state.error = error instanceof Error ? error.message : 'Failed to set volume';
+    notifyListeners();
+    throw error;
+  }
 }
 
 /**
