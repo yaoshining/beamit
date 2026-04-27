@@ -19,15 +19,6 @@
 
 **目的**：项目初始化和基础结构
 
-<<<<<<< HEAD
-- [x] T001 初始化 Plasmo 项目，创建 package.json 和基本配置文件
-- [x] T002 配置 TypeScript (tsconfig.json)
-- [x] T003 [P] 配置 ESLint 和 Prettier
-- [x] T004 [P] 配置 Tailwind CSS
-- [x] T005 配置 Vitest 测试框架 (vitest.config.ts)
-- [x] T006 [P] 配置 Allure 测试报告
-- [x] T007 创建项目目录结构 per plan.md
-=======
 - [ ] T001 初始化 Plasmo 项目，创建 package.json 和基本配置文件
 - [ ] T002 配置 TypeScript (tsconfig.json)
 - [ ] T003 [P] 配置 ESLint 和 Prettier
@@ -35,7 +26,6 @@
 - [ ] T005 配置 Vitest 测试框架 (vitest.config.ts)
 - [ ] T006 [P] 配置 Allure 测试报告
 - [ ] T007 创建项目目录结构 per plan.md
->>>>>>> origin/main
 
 ---
 
@@ -45,17 +35,6 @@
 
 **⚠️ 关键**：在进入用户故事阶段前必须完成此阶段
 
-<<<<<<< HEAD
-- [x] T008 创建共享类型定义 in src/shared/types.ts
-- [x] T009 [P] 创建常量定义 in src/shared/constants.ts
-- [x] T010 [P] 创建工具函数 in src/shared/utils.ts
-- [x] T011 配置 Plasmo manifest.ts 入口 (plasmo.config.ts)
-- [x] T012 配置 chrome.storage.local 和 chrome.storage.session (storage.ts)
-- [x] T013 创建 VideoSource 类型和验证函数 (types.ts)
-- [x] T014 创建 CastingDevice 类型和验证函数 (types.ts)
-- [x] T015 创建 CastingSession 类型和状态机 (types.ts)
-- [x] T016 创建 DeviceHistory 类型和存储逻辑 (storage.ts)
-=======
 - [ ] T008 创建共享类型定义 in src/shared/types.ts
 - [ ] T009 [P] 创建常量定义 in src/shared/constants.ts
 - [ ] T010 [P] 创建工具函数 in src/shared/utils.ts
@@ -65,7 +44,6 @@
 - [ ] T014 创建 CastingDevice 类型和验证函数
 - [ ] T015 创建 CastingSession 类型和状态机
 - [ ] T016 创建 DeviceHistory 类型和存储逻辑
->>>>>>> origin/main
 
 **检查点**：基础设施就绪 - 用户故事实现可以开始
 
@@ -79,27 +57,6 @@
 
 ### US1 测试（TDD - 先编写测试，确保失败）
 
-<<<<<<< HEAD
-- [x] T017 [P] [US1] 创建 VideoSource 检测测试 in src/tests/unit/detectors/media-detector.test.ts
-- [x] T018 [P] [US1] 创建 DLNA 设备发现测试 in src/tests/unit/devices/dlna-discover.test.ts
-- [x] T019 [US1] 创建 DLNA 播放控制集成测试 in src/tests/integration/dlna-player.test.ts
-
-### US1 实现
-
-- [x] T020 [P] [US1] 实现 MediaDetector（检测 video/audio 标签）in src/content/detectors/media-detector.ts
-- [x] T021 [P] [US1] 实现 HlsDetector（检测 m3u8）in src/content/detectors/hls-detector.ts
-- [x] T022 [P] [US1] 实现 DashDetector（检测 mpd）in src/content/detectors/dash-detector.ts
-- [x] T023 [P] [US1] 实现 IframeDetector（检测内嵌播放器）in src/content/detectors/iframe-detector.ts
-- [x] T024 [US1] 实现 VideoDetector 聚合器 in src/content/detectors/index.ts
-- [x] T025 [US1] 实现 DLNA 设备发现服务 in src/background/devices/dlna-discover.ts
-- [x] T026 [US1] 实现 DeviceManager（设备状态管理）in src/background/devices/device-manager.ts
-- [x] T027 [US1] 实现 DLNA 播放器控制 in src/background/casting/dlna-player.ts
-- [x] T028 [US1] 实现 PlaybackController（播放状态控制）in src/background/casting/playback-controller.ts
-- [x] T029 [US1] 创建 Content Script 入口 in src/content/index.ts
-- [x] T030 [US1] 创建 Background Service Worker 入口 in src/background/index.ts
-- [x] T031 [US1] 实现消息传递机制（content ↔ background）
-- [x] T032 [US1] 添加错误处理和日志记录
-=======
 - [ ] T017 [P] [US1] 创建 VideoSource 检测测试 in src/tests/unit/detectors/media-detector.test.ts
 - [ ] T018 [P] [US1] 创建 DLNA 设备发现测试 in src/tests/unit/devices/dlna-discover.test.ts
 - [ ] T019 [US1] 创建 DLNA 播放控制集成测试 in src/tests/integration/dlna-player.test.ts
@@ -119,7 +76,6 @@
 - [ ] T030 [US1] 创建 Background Service Worker 入口 in src/background/index.ts
 - [ ] T031 [US1] 实现消息传递机制（content ↔ background）
 - [ ] T032 [US1] 添加错误处理和日志记录
->>>>>>> origin/main
 
 **检查点**：此时用户故事 1 应该完全可用且可独立测试
 
@@ -306,7 +262,6 @@ Task: "实现 IframeDetector in src/content/detectors/iframe-detector.ts"
 - Phase 2 所有 [P] 任务可并行（5 个任务）
 - US1 实现中 4 个检测器可并行实现
 - US2/US3 的模型实现可并行
->>>>>>> origin/main
 
 ### MVP 范围
 
