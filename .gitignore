@@ -11,3 +11,7 @@ node_modules/
 
 # pnpm
 pnpm-lock.yaml
+-e 
+# Allure
+allure-results/
+allure-report/
