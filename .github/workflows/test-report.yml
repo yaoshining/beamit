@@ -41,16 +41,13 @@ jobs:
       - name: Run all tests with JUnit output
         run: npm run test:report
 
-      - name: Download existing Allure history
-        id: download-history
-        uses: actions/download-artifact@v4
-        with:
-          name: allure-history
-          path: allure-results/history
-        continue-on-error: true
-
       - name: Generate Allure report
-        run: allure generate allure-results --clean
+        run: |
+          if [ -d "allure-results" ]; then
+            allure generate allure-results --clean
+          else
+            echo "No allure results found, skipping report generation"
+          fi
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -63,13 +60,6 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
-      - name: Upload Allure history for next run
-        uses: actions/upload-artifact@v4
-        with:
-          name: allure-history
-          path: allure-results/history
-          retention-days: 30
 
   test-coverage:
     name: Test Coverage Report
