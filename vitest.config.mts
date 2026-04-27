@@ -6,6 +6,8 @@ export default defineConfig({
     environment: 'jsdom',
     include: ['src/tests/**/*.test.ts', 'src/tests/**/*.test.tsx'],
     exclude: ['node_modules', 'dist', 'build'],
+    setupFiles: ['allure-vitest/setup', 'src/tests/setup.ts'],
+    reporters: ['allure-vitest/reporter'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
@@ -18,7 +20,6 @@ export default defineConfig({
         'src/manifest.ts'
       ]
     },
-    setupFiles: ['src/tests/setup.ts'],
     globals: true
   },
   resolve: {
