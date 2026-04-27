@@ -22,7 +22,6 @@ const PLAYBACK_STATE: PlaybackState = {
 
 // DLNA AVTransport SOAP Action URLs
 const AV_TRANSPORT_SERVICE = 'urn:schemas-upnp-org:service:AVTransport:1';
-const RENDERING_CONTROL_SERVICE = 'urn:schemas-upnp-org:service:RenderingControl:1';
 
 /**
  * Create DLNA AVTransport SOAP request

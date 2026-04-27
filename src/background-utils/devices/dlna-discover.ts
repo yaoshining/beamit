@@ -2,7 +2,7 @@
 // Implements SSDP (Simple Service Discovery Protocol) for device discovery
 
 import { CastingDevice, DeviceType } from '@shared/types';
-import { SSDP_MULTICAST_ADDRESS, SSDP_PORT, SSDP_SEARCH_TARGETS, SSDP_TIMEOUT } from '@shared/constants';
+import { SSDP_MULTICAST_ADDRESS, SSDP_PORT, SSDP_TIMEOUT } from '@shared/constants';
 import { generateUUID } from '@shared/utils';
 
 export interface DiscoveryOptions {
@@ -138,7 +138,6 @@ export class DLNADiscoveryService {
 
       // Extract device information
       const location = headers['location'] || headers['al'] || '';
-      const usn = headers['usn'] || '';
       const st = headers['st'] || headers['nt'] || '';
 
       if (!location) {

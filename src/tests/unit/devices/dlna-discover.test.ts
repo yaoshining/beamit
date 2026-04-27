@@ -62,7 +62,6 @@ describe('DLNADiscoveryService', () => {
 
   describe('device identification', () => {
     it('should identify TV devices', () => {
-      const st = 'urn:schemas-upnp-org:device:MediaRenderer:1';
       const deviceType = 'tv';
       expect(['tv', 'receiver', 'speaker', 'other'].includes(deviceType)).toBe(true);
     });

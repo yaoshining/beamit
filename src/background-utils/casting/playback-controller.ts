@@ -1,8 +1,8 @@
 // Playback Controller
 // Manages playback state machine and coordinates between UI and DLNA player
 
-import { CastingSession, CastingDevice, VideoSource, SessionStatus } from '@shared/types';
-import { getCurrentSession, setCurrentSession } from '@shared/storage';
+import { CastingSession, CastingDevice, VideoSource } from '@shared/types';
+import { getCurrentSession } from '@shared/storage';
 import * as dlnaPlayer from './dlna-player';
 
 export interface PlaybackControllerState {

@@ -1,15 +1,9 @@
 // Device Manager
 // Manages device state and history
 
-import { CastingDevice, DeviceHistory } from '@shared/types';
-import { getDiscoveryService, discoverDLNADevices } from './dlna-discover';
-import {
-  getDeviceHistory,
-  addToDeviceHistory,
-  getRecentDeviceIds,
-  setRecentDevices,
-  getRecentDevices
-} from '@shared/storage';
+import { CastingDevice } from '@shared/types';
+import { getDiscoveryService } from './dlna-discover';
+import { addToDeviceHistory, getRecentDeviceIds, setRecentDevices } from '@shared/storage';
 
 export interface DeviceManagerState {
   devices: CastingDevice[];
