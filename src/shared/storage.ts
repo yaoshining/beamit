@@ -120,7 +120,8 @@ const DEFAULT_SETTINGS: Settings = {
 
 export async function getSettings(): Promise<Settings> {
   const settings = await localStorage.get<Settings>(STORAGE_KEYS.SETTINGS);
-  return settings || DEFAULT_SETTINGS;
+  // Return a shallow copy to prevent mutation of the default settings object
+  return settings ? { ...settings } : { ...DEFAULT_SETTINGS };
 }
 
 export async function setSettings(settings: Settings): Promise<void> {

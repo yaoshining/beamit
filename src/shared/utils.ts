@@ -76,12 +76,17 @@ export function extractDomain(url: string): string {
 export function isVideoUrl(url: string): boolean {
   if (!isValidUrl(url)) return false;
   
-  const videoExtensions = ['.mp4', '.webm', '.flv', '.mov', '.avi', '.mkv'];
-  const lowerUrl = url.toLowerCase();
-  
-  return videoExtensions.some(ext => lowerUrl.includes(ext)) ||
-    lowerUrl.includes('.m3u8') ||
-    lowerUrl.includes('.mpd');
+  try {
+    const urlObj = new URL(url);
+    const pathname = urlObj.pathname.toLowerCase();
+    
+    // Match against file extensions in the URL pathname only
+    // This avoids false positives from query parameters or hash fragments
+    const videoExtensions = ['.mp4', '.webm', '.flv', '.mov', '.avi', '.mkv', '.m3u8', '.mpd'];
+    return videoExtensions.some(ext => pathname.endsWith(ext) || pathname.includes(ext + '?'));
+  } catch {
+    return false;
+  }
 }
 
 /**

@@ -174,7 +174,8 @@ export class DLNADiscoveryService {
     url: URL
   ): string {
     // Try various headers for device name
-    const nameHeaders = ['friendlyname', 'server', 'x用户体验名字', 'dc:title'];
+    // Standard SSDP headers per UPnP spec: friendlyName, server, dc:title
+    const nameHeaders = ['friendlyname', 'friendlyname', 'server', 'dc:title'];
 
     for (const header of nameHeaders) {
       if (headers[header]) {
@@ -224,10 +225,14 @@ export class DLNADiscoveryService {
   handleMessage(message: string, remoteAddress: string): void {
     const device = this.parseSSDPResponse(message);
 
-    if (device && !this.discoveredDevices.has(device.address)) {
-      device.address = remoteAddress; // Use the actual response address
-      this.discoveredDevices.set(device.address, device);
-      console.log('[DLNA] Device discovered:', device.name, device.address);
+    if (device) {
+      // Use remoteAddress as the deduplication key (actual source IP)
+      // This is more reliable than device.address (parsed from Location header)
+      device.address = remoteAddress;
+      if (!this.discoveredDevices.has(remoteAddress)) {
+        this.discoveredDevices.set(remoteAddress, device);
+        console.log('[DLNA] Device discovered:', device.name, device.address);
+      }
     }
   }
 
