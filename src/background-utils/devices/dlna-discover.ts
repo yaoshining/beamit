@@ -22,6 +22,7 @@ export class DLNADiscoveryService {
   private discoveredDevices: Map<string, CastingDevice> = new Map();
   private isDiscovering: boolean = false;
   private searchTimeout: ReturnType<typeof setTimeout> | null = null;
+  private onDeviceFoundCallback: ((device: CastingDevice) => void) | null = null;
 
   /**
    * Start device discovery
@@ -36,6 +37,9 @@ export class DLNADiscoveryService {
     this.isDiscovering = true;
     this.discoveredDevices.clear();
 
+    // Store onDeviceFound callback for use in handleMessage
+    this.onDeviceFoundCallback = options.onDeviceFound ?? null;
+
     options.onDiscoveryStart?.();
 
     try {
@@ -45,13 +49,15 @@ export class DLNADiscoveryService {
       // Set up receive handler
       this.startListening();
 
-      // Set timeout to stop discovery
-      this.searchTimeout = setTimeout(() => {
-        this.stopDiscovery();
-        options.onDiscoveryEnd?.(Array.from(this.discoveredDevices.values()));
-      }, timeout);
-
-      return Array.from(this.discoveredDevices.values());
+      // Return a Promise that resolves when discovery ends (after timeout)
+      return new Promise<CastingDevice[]>((resolve) => {
+        this.searchTimeout = setTimeout(() => {
+          this.stopDiscovery();
+          const devices = Array.from(this.discoveredDevices.values());
+          options.onDiscoveryEnd?.(devices);
+          resolve(devices);
+        }, timeout);
+      });
     } catch (error) {
       this.isDiscovering = false;
       options.onError?.(error as Error);
@@ -211,7 +217,11 @@ export class DLNADiscoveryService {
       return 'tv';
     }
 
-    if (stLower.includes('receiver') || stLower.includes('audio')) {
+    if (stLower.includes('receiver')) {
+      return 'receiver';
+    }
+
+    if (stLower.includes('audio')) {
       return 'speaker';
     }
 
@@ -232,6 +242,7 @@ export class DLNADiscoveryService {
       if (!this.discoveredDevices.has(remoteAddress)) {
         this.discoveredDevices.set(remoteAddress, device);
         console.log('[DLNA] Device discovered:', device.name, device.address);
+        this.onDeviceFoundCallback?.(device);
       }
     }
   }

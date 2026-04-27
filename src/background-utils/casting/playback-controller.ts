@@ -2,7 +2,7 @@
 // Manages playback state machine and coordinates between UI and DLNA player
 
 import { CastingSession, CastingDevice, VideoSource } from '@shared/types';
-import { getCurrentSession } from '@shared/storage';
+import { getCurrentSession, setCurrentSession } from '@shared/storage';
 import * as dlnaPlayer from './dlna-player';
 
 export interface PlaybackControllerState {
@@ -78,6 +78,9 @@ export async function startPlayback(
     state.isPlaying = true;
     state.position = 0;
 
+    // Persist the session to storage
+    await setCurrentSession(session);
+
     // Start polling for position updates
     startPositionPolling(device);
 
@@ -112,6 +115,9 @@ export async function stopPlayback(): Promise<void> {
   } catch (error) {
     console.error('[PlaybackController] Error stopping playback:', error);
   }
+
+  // Clear the persisted session
+  await setCurrentSession(null);
 
   state.session = null;
   state.isPlaying = false;

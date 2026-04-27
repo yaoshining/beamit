@@ -1,30 +1,30 @@
 import { Storage } from '@plasmohq/storage';
 
-import type { 
-  VideoSource, 
-  CastingDevice, 
-  CastingSession, 
-  DeviceHistory 
+import type {
+  VideoSource,
+  CastingDevice,
+  CastingSession,
+  DeviceHistory
 } from '@shared/types';
 import { STORAGE_KEYS } from '@shared/types';
 
 // Local Storage (persistent)
-export const localStorage = new Storage({
+export const chromeLocal = new Storage({
   area: 'local'
 });
 
 // Session Storage (temporary)
-export const sessionStorage = new Storage({
+export const chromeSession = new Storage({
   area: 'session'
 });
 
 // Helper Functions
 export async function setDeviceHistory(history: DeviceHistory[]): Promise<void> {
-  await localStorage.set(STORAGE_KEYS.DEVICE_HISTORY, history);
+  await chromeLocal.set(STORAGE_KEYS.DEVICE_HISTORY, history);
 }
 
 export async function getDeviceHistory(): Promise<DeviceHistory[]> {
-  const history = await localStorage.get<DeviceHistory[]>(STORAGE_KEYS.DEVICE_HISTORY);
+  const history = await chromeLocal.get<DeviceHistory[]>(STORAGE_KEYS.DEVICE_HISTORY);
   return history || [];
 }
 
@@ -60,49 +60,49 @@ export async function getRecentDeviceIds(): Promise<string[]> {
 }
 
 export async function setRecentDevices(deviceIds: string[]): Promise<void> {
-  await localStorage.set(STORAGE_KEYS.RECENT_DEVICES, deviceIds);
+  await chromeLocal.set(STORAGE_KEYS.RECENT_DEVICES, deviceIds);
 }
 
 export async function getRecentDevices(): Promise<string[]> {
-  const devices = await localStorage.get<string[]>(STORAGE_KEYS.RECENT_DEVICES);
+  const devices = await chromeLocal.get<string[]>(STORAGE_KEYS.RECENT_DEVICES);
   return devices || [];
 }
 
 // Session Storage Helpers
 export async function setCurrentSession(session: CastingSession | null): Promise<void> {
   if (session) {
-    await sessionStorage.set(STORAGE_KEYS.CURRENT_SESSION, session);
+    await chromeSession.set(STORAGE_KEYS.CURRENT_SESSION, session);
   } else {
-    await sessionStorage.remove(STORAGE_KEYS.CURRENT_SESSION);
+    await chromeSession.remove(STORAGE_KEYS.CURRENT_SESSION);
   }
 }
 
 export async function getCurrentSession(): Promise<CastingSession | null> {
-  const session = await sessionStorage.get<CastingSession>(STORAGE_KEYS.CURRENT_SESSION);
+  const session = await chromeSession.get<CastingSession>(STORAGE_KEYS.CURRENT_SESSION);
   return session ?? null;
 }
 
 export async function setDetectedVideos(videos: VideoSource[]): Promise<void> {
-  await sessionStorage.set(STORAGE_KEYS.DETECTED_VIDEOS, videos);
+  await chromeSession.set(STORAGE_KEYS.DETECTED_VIDEOS, videos);
 }
 
 export async function getDetectedVideos(): Promise<VideoSource[]> {
-  const videos = await sessionStorage.get<VideoSource[]>(STORAGE_KEYS.DETECTED_VIDEOS);
+  const videos = await chromeSession.get<VideoSource[]>(STORAGE_KEYS.DETECTED_VIDEOS);
   return videos || [];
 }
 
 export async function setDiscoveredDevices(devices: CastingDevice[]): Promise<void> {
-  await sessionStorage.set(STORAGE_KEYS.DISCOVERED_DEVICES, devices);
+  await chromeSession.set(STORAGE_KEYS.DISCOVERED_DEVICES, devices);
 }
 
 export async function getDiscoveredDevices(): Promise<CastingDevice[]> {
-  const devices = await sessionStorage.get<CastingDevice[]>(STORAGE_KEYS.DISCOVERED_DEVICES);
+  const devices = await chromeSession.get<CastingDevice[]>(STORAGE_KEYS.DISCOVERED_DEVICES);
   return devices || [];
 }
 
 // Clear session storage (for when extension is closed)
 export async function clearSessionStorage(): Promise<void> {
-  await sessionStorage.clear();
+  await chromeSession.clear();
 }
 
 // Settings
@@ -119,11 +119,11 @@ const DEFAULT_SETTINGS: Settings = {
 };
 
 export async function getSettings(): Promise<Settings> {
-  const settings = await localStorage.get<Settings>(STORAGE_KEYS.SETTINGS);
+  const settings = await chromeLocal.get<Settings>(STORAGE_KEYS.SETTINGS);
   // Return a shallow copy to prevent mutation of the default settings object
   return settings ? { ...settings } : { ...DEFAULT_SETTINGS };
 }
 
 export async function setSettings(settings: Settings): Promise<void> {
-  await localStorage.set(STORAGE_KEYS.SETTINGS, settings);
+  await chromeLocal.set(STORAGE_KEYS.SETTINGS, settings);
 }

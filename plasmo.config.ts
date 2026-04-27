@@ -1,6 +1,6 @@
 export default {
   manifest: {
-    host_permissions: ['<all_urls>'],
-    permissions: ['storage', 'activeTab', 'tabs', 'scripting']
+    host_permissions: ['http://192.168.*/*', 'http://10.*/*'],
+    permissions: ['storage', 'activeTab']
   }
 };

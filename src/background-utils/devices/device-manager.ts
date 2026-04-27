@@ -3,7 +3,7 @@
 
 import { CastingDevice } from '@shared/types';
 import { getDiscoveryService } from './dlna-discover';
-import { addToDeviceHistory, getRecentDeviceIds, setRecentDevices } from '@shared/storage';
+import { addToDeviceHistory, getRecentDeviceIds, setRecentDevices, getSettings } from '@shared/storage';
 
 export interface DeviceManagerState {
   devices: CastingDevice[];
@@ -42,18 +42,17 @@ export async function startDiscovery(): Promise<CastingDevice[]> {
 
   try {
     const service = getDiscoveryService();
-    const devices = await service.startDiscovery({
+    await service.startDiscovery({
       timeout: 5000,
-      onDeviceFound: (device) => {
-        console.log('[DeviceManager] Device found:', device.name);
-        // Add to recent devices
-        addToRecentDevice(device);
-      },
       onDiscoveryEnd: (devices) => {
         state.devices = devices;
         state.lastDiscovery = Date.now();
         state.isDiscovering = false;
         console.log('[DeviceManager] Discovery complete. Found', devices.length, 'devices');
+        // Add each discovered device to recent devices
+        devices.forEach((device) => {
+          addToRecentDevice(device);
+        });
       },
       onError: (error) => {
         state.error = error.message;
@@ -62,9 +61,7 @@ export async function startDiscovery(): Promise<CastingDevice[]> {
       }
     });
 
-    state.devices = devices;
-    state.lastDiscovery = Date.now();
-    return devices;
+    return state.devices;
   } catch (error) {
     state.error = error instanceof Error ? error.message : 'Discovery failed';
     state.isDiscovering = false;
@@ -86,9 +83,9 @@ export function stopDiscovery(): void {
 /**
  * Select a device for casting
  */
-export function selectDevice(device: CastingDevice): void {
+export async function selectDevice(device: CastingDevice): Promise<void> {
   state.selectedDevice = device;
-  addToRecentDevice(device);
+  await addToRecentDevice(device);
   console.log('[DeviceManager] Device selected:', device.name);
 }
 
@@ -102,17 +99,29 @@ export function getDeviceById(deviceId: string): CastingDevice | undefined {
 /**
  * Check if device is online
  */
-export function isDeviceOnline(device: CastingDevice): boolean {
+export async function isDeviceOnline(device: CastingDevice): Promise<boolean> {
   const now = Date.now();
-  const timeout = 30000; // 30 seconds
+  let timeout = 30000; // default 30 seconds
+  try {
+    const settings = await getSettings();
+    timeout = settings.deviceTimeout ?? 30000;
+  } catch {
+    // Fallback to default if settings cannot be retrieved
+  }
   return now - device.lastSeen < timeout;
 }
 
 /**
  * Filter online devices only
  */
-export function getOnlineDevices(): CastingDevice[] {
-  return state.devices.filter(isDeviceOnline);
+export async function getOnlineDevices(): Promise<CastingDevice[]> {
+  const onlineDevices: CastingDevice[] = [];
+  for (const device of state.devices) {
+    if (await isDeviceOnline(device)) {
+      onlineDevices.push(device);
+    }
+  }
+  return onlineDevices;
 }
 
 /**
@@ -139,7 +148,7 @@ export async function getRecentlyUsedDevices(): Promise<CastingDevice[]> {
 
   for (const id of recentIds) {
     const device = state.devices.find((d) => d.id === id);
-    if (device && isDeviceOnline(device)) {
+    if (device && (await isDeviceOnline(device))) {
       recentDevices.push(device);
     }
   }

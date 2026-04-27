@@ -2,7 +2,7 @@
 // Handles DLNA/UPnP AVTransport protocol for media playback
 
 import { CastingDevice, VideoSource, CastingSession } from '@shared/types';
-import { setCurrentSession, getCurrentSession } from '@shared/storage';
+import { setCurrentSession, getCurrentSession, getDiscoveredDevices } from '@shared/storage';
 
 export interface PlaybackState {
   isPlaying: boolean;
@@ -20,15 +20,44 @@ const PLAYBACK_STATE: PlaybackState = {
   mute: false
 };
 
-// DLNA AVTransport SOAP Action URLs
 const AV_TRANSPORT_SERVICE = 'urn:schemas-upnp-org:service:AVTransport:1';
+
+/**
+ * XML-escape special characters in a string value.
+ */
+function escapeXml(value: string): string {
+  const amp = '&' + 'amp;';
+  const lt = '&' + 'lt;';
+  const gt = '&' + 'gt;';
+  const quot = '&' + 'quot;';
+  const apos = '&' + '#39;';
+  return value
+    .replace(/&/g, amp)
+    .replace(/</g, lt)
+    .replace(/>/g, gt)
+    .replace(/"/g, quot)
+    .replace(/'/g, apos);
+}
+
+/**
+ * Derive the UPnP control endpoint path from a service URN.
+ * E.g. "urn:schemas-upnp-org:service:AVTransport:1" -> "/upnp/control/avtransport"
+ */
+function getControlEndpoint(serviceUrn: string): string {
+  const match = serviceUrn.match(/:service:(\w+):\d+$/);
+  if (match) {
+    return `/upnp/control/${match[1].toLowerCase()}`;
+  }
+  // Fallback: use the URN as-is (original behavior)
+  return `/${serviceUrn}`;
+}
 
 /**
  * Create DLNA AVTransport SOAP request
  */
 function createAVTransportSoap(action: string, args: Record<string, string>): string {
   const argsXml = Object.entries(args)
-    .map(([key, value]) => `<${key}>${value}</${key}>`)
+    .map(([key, value]) => `<${key}>${escapeXml(value)}</${key}>`)
     .join('');
 
   return `<?xml version="1.0" encoding="utf-8"?>
@@ -50,7 +79,8 @@ async function sendToDevice(
   action: string,
   body: string
 ): Promise<string> {
-  const url = `http://${device.address}:${device.port || 1900}/${service}`;
+  const controlPath = getControlEndpoint(service);
+  const url = `http://${device.address}:${device.port || 1900}${controlPath}`;
 
   const response = await fetch(url, {
     method: 'POST',
@@ -79,9 +109,9 @@ export async function setMediaUrl(
   const metadata = `<?xml version="1.0"?>
 <DIDL-Lite xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/">
   <item id="0" parentID="0" restricted="0">
-    <dc:title xmlns:dc="http://purl.org/dc/elements/1.1/">${videoSource.pageTitle || 'Video'}</dc:title>
+    <dc:title xmlns:dc="http://purl.org/dc/elements/1.1/">${escapeXml(videoSource.pageTitle || 'Video')}</dc:title>
     <upnp:class xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">object.item.videoItem</upnp:class>
-    <res protocolInfo="http-get:*:video/*:*">${videoSource.url}</res>
+    <res protocolInfo="http-get:*:video/*:*">${escapeXml(videoSource.url)}</res>
   </item>
 </DIDL-Lite>`;
 
@@ -161,11 +191,11 @@ export async function getPosition(device: CastingDevice): Promise<number> {
 
   const response = await sendToDevice(device, AV_TRANSPORT_SERVICE, 'GetPositionInfo', soapBody);
 
-  // Parse position from response
-  const match = response.match(/<RelTime>(\d+):(\d+):(\d+)<\/RelTime>/);
+  // Parse position from response (support optional namespace prefix, e.g. <ns:RelTime>)
+  const match = response.match(/<(?:[a-zA-Z0-9]+:)?RelTime>(\d+):(\d+):(\d+)<\/(?:[a-zA-Z0-9]+:)?RelTime>/);
   if (match) {
     const [, hours, minutes, seconds] = match;
-    const position = parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(seconds);
+    const position = parseInt(hours, 10) * 3600 + parseInt(minutes, 10) * 60 + parseInt(seconds, 10);
     PLAYBACK_STATE.position = position;
     return position;
   }
@@ -240,8 +270,17 @@ export async function stopCasting(sessionId: string): Promise<void> {
   }
 
   try {
-    // Note: We don't have direct access to device here in this simplified implementation
-    // In a real implementation, we'd get the device from session
+    // Look up the device from discovered devices by session.deviceId
+    const devices = await getDiscoveredDevices();
+    const device = devices.find((d) => d.id === session.deviceId);
+
+    if (device) {
+      // Send Stop SOAP command to the device before updating local state
+      await stop(device);
+    } else {
+      console.warn('[DLNAPlayer] Device not found for session, stopping locally only:', session.deviceId);
+    }
+
     session.status = 'stopped';
     session.endedAt = Date.now();
     await setCurrentSession(session);
