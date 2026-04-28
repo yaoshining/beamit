@@ -133,13 +133,13 @@
 
 **目的**：影响多个用户故事的改进
 
-- [ ] T049 [P] 更新 README.md 和开发文档 in docs/development.md
-- [ ] T050 [P] 代码清理和重构
-- [ ] T051 性能优化（内存占用 ≤ 50MB，启动 ≤ 500ms）
-- [ ] T052 [P] 添加更多单元测试（覆盖率 ≥ 80%）
-- [ ] T053 安全加固（权限最小化、npm audit）
-- [ ] T054 运行 quickstart.md 验证流程
-- [ ] T055 配置 GitHub Actions CI/CD
+- [x] T049 [P] 更新 README.md 和开发文档 in docs/development.md
+- [x] T050 [P] 代码清理和重构
+- [x] T051 性能优化（内存占用 ≤ 50MB，启动 ≤ 500ms）
+- [x] T052 [P] 添加更多单元测试（覆盖率 ≥ 80%）
+- [x] T053 安全加固（权限最小化、npm audit）
+- [x] T054 运行 quickstart.md 验证流程
+- [x] T055 配置 GitHub Actions CI/CD
 
 ---
 
