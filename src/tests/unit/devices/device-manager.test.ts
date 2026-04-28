@@ -20,6 +20,7 @@ vi.mock('@shared/storage', () => ({
     mockRecentIds = [...ids];
   }),
   getSettings: vi.fn(async () => ({ ...mockSettings })),
+  setDiscoveredDevices: vi.fn(async () => {}),
 }));
 
 // Mock dlna-discover

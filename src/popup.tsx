@@ -8,6 +8,7 @@ import { DeviceList } from './popup/components/DeviceList';
 import { getRecommendedDevices } from '@background-utils/devices/device-recommender';
 import type { DeviceRecommendation } from '@background-utils/devices/device-recommender';
 import { startDiscovery, stopDiscovery } from '@background-utils/devices/device-manager';
+import { getDiscoveredDevices } from '@shared/storage';
 
 type AppView = 'detect' | 'devices' | 'casting';
 
@@ -83,6 +84,8 @@ function IndexPopup() {
 
   /**
    * Discover DLNA devices on the network.
+   * T046: First loads cached devices from session storage for quick access,
+   * then runs full discovery in background.
    * T048: Optimized with 5-second timeout.
    */
   const discoverDevices = useCallback(async () => {
@@ -90,6 +93,14 @@ function IndexPopup() {
     setDiscoveryError(null);
 
     try {
+      // T046: Load cached devices immediately for quick access
+      const cachedDevices = await getDiscoveredDevices();
+      if (cachedDevices.length > 0) {
+        const cachedRecs = await getRecommendedDevices(cachedDevices);
+        setRecommendations(cachedRecs);
+      }
+
+      // Run full discovery in background
       const discoveredDevices = await startDiscovery();
 
       // T048: Enforce 5-second maximum timeout
@@ -114,14 +125,19 @@ function IndexPopup() {
       if (result.length > 0) {
         const recs = await getRecommendedDevices(result);
         setRecommendations(recs);
-      } else {
+      } else if (cachedDevices.length === 0) {
+        // Only set empty if no cached devices were available
         setRecommendations([]);
       }
     } catch (error) {
       setDiscoveryError(
         error instanceof Error ? error.message : '设备发现失败'
       );
-      setRecommendations([]);
+      // T046: Don't clear recommendations on error if we have cached devices
+      const cachedDevices = await getDiscoveredDevices().catch(() => []);
+      if (cachedDevices.length === 0) {
+        setRecommendations([]);
+      }
     } finally {
       setIsDiscovering(false);
     }

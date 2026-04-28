@@ -121,7 +121,7 @@
 - [x] T043 [P] [US3] 实现 DeviceHistory 存储逻辑 in src/background/devices/device-history.ts
 - [x] T044 [P] [US3] 实现设备推荐逻辑（按使用频率）in src/background/devices/device-recommender.ts
 - [x] T045 [US3] 创建设备列表 UI 组件 in src/popup/components/DeviceList.tsx
-- [ ] T046 [US3] 实现最近设备快捷访问功能
+- [x] T046 [US3] 实现最近设备快捷访问功能
 - [x] T047 [US3] 实现离线设备状态显示
 - [x] T048 [US3] 优化设备搜索超时体验（5秒内完成）
 

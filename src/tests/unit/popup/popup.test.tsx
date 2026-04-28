@@ -33,6 +33,11 @@ vi.mock('@background-utils/devices/device-recommender', () => ({
   ]),
 }));
 
+// Mock shared storage (for getDiscoveredDevices T046)
+vi.mock('@shared/storage', () => ({
+  getDiscoveredDevices: vi.fn().mockResolvedValue([]),
+}));
+
 describe('IndexPopup', () => {
   const originalSendMessage = global.chrome?.runtime?.sendMessage;
 

@@ -3,7 +3,7 @@
 
 import { CastingDevice } from '@shared/types';
 import { getDiscoveryService } from './dlna-discover';
-import { addToDeviceHistory, getRecentDeviceIds, setRecentDevices, getSettings } from '@shared/storage';
+import { addToDeviceHistory, getRecentDeviceIds, setRecentDevices, getSettings, setDiscoveredDevices } from '@shared/storage';
 
 export interface DeviceManagerState {
   devices: CastingDevice[];
@@ -49,6 +49,10 @@ export async function startDiscovery(): Promise<CastingDevice[]> {
         state.lastDiscovery = Date.now();
         state.isDiscovering = false;
         console.log('[DeviceManager] Discovery complete. Found', devices.length, 'devices');
+        // T046: Save discovered devices to session storage for quick access
+        setDiscoveredDevices(devices).catch((err) =>
+          console.warn('[DeviceManager] Failed to cache discovered devices:', err)
+        );
         // Add each discovered device to recent devices
         devices.forEach((device) => {
           addToRecentDevice(device);
