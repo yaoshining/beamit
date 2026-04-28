@@ -9,16 +9,18 @@ export default defineConfig({
     setupFiles: ['allure-vitest/setup', 'src/tests/setup.ts'],
     reporters: ['default', 'allure-vitest/reporter'],
     coverage: {
-      provider: 'v8',
+      provider: 'istanbul',
       reporter: ['text', 'json', 'html', 'lcov'],
       exclude: [
         'node_modules/',
+        '.plasmo/',
         'src/tests/',
         '**/*.d.ts',
         '**/*.config.*',
         '**/index.ts',
         'src/manifest.ts'
-      ]
+      ],
+      include: ['src/**/*.ts', 'src/**/*.tsx']
     },
     globals: true
   },

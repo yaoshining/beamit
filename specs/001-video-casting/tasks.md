@@ -89,17 +89,17 @@
 
 ### US2 测试
 
-- [ ] T033 [P] [US2] 创建多视频源检测测试 in src/tests/unit/detectors/video-detector.test.ts
-- [ ] T034 [P] [US2] 创建视频源选择逻辑测试 in src/tests/unit/detectors/video-source-selector.test.ts
+- [x] T033 [P] [US2] 创建多视频源检测测试 in src/tests/unit/detectors/video-detector.test.ts
+- [x] T034 [P] [US2] 创建视频源选择逻辑测试 in src/tests/unit/detectors/video-source-selector.test.ts
 
 ### US2 实现
 
-- [ ] T035 [P] [US2] 扩展 MediaDetector 支持更多格式（webm、flv）
-- [ ] T036 [P] [US2] 优化 HlsDetector 正则表达式匹配
-- [ ] T037 [US2] 实现视频源去重和排序逻辑
-- [ ] T038 [US2] 实现视频源列表 UI 组件 in src/popup/components/VideoList.tsx
-- [ ] T039 [US2] 实现视频源选择下拉菜单 in src/popup/components/VideoSelector.tsx
-- [ ] T040 [US2] 集成视频源选择到 Popup App in src/popup/App.tsx
+- [x] T035 [P] [US2] 扩展 MediaDetector 支持更多格式（webm、flv）
+- [x] T036 [P] [US2] 优化 HlsDetector 正则表达式匹配
+- [x] T037 [US2] 实现视频源去重和排序逻辑
+- [x] T038 [US2] 实现视频源列表 UI 组件 in src/popup/components/VideoList.tsx
+- [x] T039 [US2] 实现视频源选择下拉菜单 in src/popup/components/VideoSelector.tsx
+- [x] T040 [US2] 集成视频源选择到 Popup App in src/popup/App.tsx
 
 **检查点**：此时用户故事 1 和 2 都应该独立工作
 
@@ -113,17 +113,17 @@
 
 ### US3 测试
 
-- [ ] T041 [P] [US3] 创建设备历史存储测试 in src/tests/unit/devices/device-history.test.ts
-- [ ] T042 [P] [US3] 创建设备排序和推荐逻辑测试 in src/tests/unit/devices/device-recommender.test.ts
+- [x] T041 [P] [US3] 创建设备历史存储测试 in src/tests/unit/devices/device-history.test.ts
+- [x] T042 [P] [US3] 创建设备排序和推荐逻辑测试 in src/tests/unit/devices/device-recommender.test.ts
 
 ### US3 实现
 
-- [ ] T043 [P] [US3] 实现 DeviceHistory 存储逻辑 in src/background/devices/device-history.ts
-- [ ] T044 [P] [US3] 实现设备推荐逻辑（按使用频率）in src/background/devices/device-recommender.ts
-- [ ] T045 [US3] 创建设备列表 UI 组件 in src/popup/components/DeviceList.tsx
+- [x] T043 [P] [US3] 实现 DeviceHistory 存储逻辑 in src/background/devices/device-history.ts
+- [x] T044 [P] [US3] 实现设备推荐逻辑（按使用频率）in src/background/devices/device-recommender.ts
+- [x] T045 [US3] 创建设备列表 UI 组件 in src/popup/components/DeviceList.tsx
 - [ ] T046 [US3] 实现最近设备快捷访问功能
-- [ ] T047 [US3] 实现离线设备状态显示
-- [ ] T048 [US3] 优化设备搜索超时体验（5秒内完成）
+- [x] T047 [US3] 实现离线设备状态显示
+- [x] T048 [US3] 优化设备搜索超时体验（5秒内完成）
 
 **检查点**：所有用户故事都应该独立可用
 
@@ -161,10 +161,10 @@
 | Phase 1：设置 | ✅ 完成 | 7/7 |
 | Phase 2：基础设施 | ✅ 完成 | 9/9 |
 | Phase 3：US1 | ✅ 完成 | 16/16 |
-| Phase 4：US2 | ⏳ 待开始 | 0/8 |
-| Phase 5：US3 | ⏳ 待开始 | 0/8 |
+| Phase 4：US2 | ✅ 完成 | 8/8 |
+| Phase 5：US3 | ⏳ 进行中 | 7/8 |
 | Phase 6：打磨 | ⏳ 待开始 | 0/7 |
-| **总计** | - | **32/55** |
+| **总计** | - | **47/55** |
 
 ### 用户故事依赖
 

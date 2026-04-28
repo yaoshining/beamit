@@ -1,3 +1,6 @@
+# Coverage reports (deployed to gh-pages branch)
+coverage/
+
 # Plasmo build outputs
 .plasmo/
 build/
@@ -11,7 +14,14 @@ node_modules/
 
 # pnpm
 pnpm-lock.yaml
--e 
+
+# Env files
+.env*
+.env.local
+
+# Logs
+*.log
+
 # Allure
 allure-results/
 allure-report/

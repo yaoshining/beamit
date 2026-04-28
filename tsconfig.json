@@ -34,6 +34,9 @@
       ],
       "@popup/*": [
         "src/popup/*"
+      ],
+      "@background-utils/*": [
+        "src/background-utils/*"
       ]
     },
     "types": [

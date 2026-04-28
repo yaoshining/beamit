@@ -1,5 +1,6 @@
 // Test setup file
 import { beforeAll, afterEach, afterAll, vi } from 'vitest';
+import '@testing-library/jest-dom';
 
 // Mock chrome API for tests
 beforeAll(() => {
