@@ -10,6 +10,7 @@ import type { CastingDevice } from '@shared/types';
 const mockDeviceHistory: CastingDevice[] = [];
 let mockRecentIds: string[] = [];
 let mockSettings: { deviceTimeout?: number } = { deviceTimeout: 30000 };
+let mockCachedDevices: CastingDevice[] = [];
 
 vi.mock('@shared/storage', () => ({
   addToDeviceHistory: vi.fn(async (device: CastingDevice) => {
@@ -20,7 +21,10 @@ vi.mock('@shared/storage', () => ({
     mockRecentIds = [...ids];
   }),
   getSettings: vi.fn(async () => ({ ...mockSettings })),
-  setDiscoveredDevices: vi.fn(async () => {}),
+  getDiscoveredDevices: vi.fn(async () => [...mockCachedDevices]),
+  setDiscoveredDevices: vi.fn(async (devices: CastingDevice[]) => {
+    mockCachedDevices = [...devices];
+  }),
 }));
 
 // Mock dlna-discover
@@ -67,6 +71,7 @@ describe('DeviceManager', () => {
     mockDeviceHistory.length = 0;
     mockRecentIds = [];
     mockSettings = { deviceTimeout: 30000 };
+    mockCachedDevices = [];
     mockStartDiscovery.mockReset();
     mockStopDiscovery.mockReset();
   });
@@ -199,6 +204,52 @@ describe('DeviceManager', () => {
 
       const state = getDeviceState();
       expect(state.error).toBe('Discovery timeout');
+    });
+
+    it('should keep cached devices when a retry scan times out with no results', async () => {
+      const cachedDevice = createTestDevice('tv-1', 'Cached TV', Date.now() - 1000);
+      mockCachedDevices = [cachedDevice];
+
+      mockStartDiscovery.mockImplementation(async (opts: any) => {
+        if (opts.onDiscoveryEnd) {
+          opts.onDiscoveryEnd([]);
+        }
+        return [];
+      });
+
+      const devices = await startDiscovery();
+
+      expect(devices).toHaveLength(1);
+      expect(devices[0].name).toBe('Cached TV');
+
+      const { setDiscoveredDevices } = await import('@shared/storage');
+      expect(setDiscoveredDevices).toHaveBeenCalledWith([cachedDevice]);
+      expect(mockCachedDevices).toEqual([cachedDevice]);
+    });
+
+    it('should merge new discoveries with cached devices', async () => {
+      const cachedDevice = createTestDevice('tv-1', 'Cached TV', Date.now() - 1000);
+      const newDevice = createTestDevice('tv-2', 'New TV');
+      mockCachedDevices = [cachedDevice];
+
+      mockStartDiscovery.mockImplementation(async (opts: any) => {
+        if (opts.onDiscoveryEnd) {
+          opts.onDiscoveryEnd([newDevice]);
+        }
+        return [newDevice];
+      });
+
+      const devices = await startDiscovery();
+
+      expect(devices.map((device) => device.id).sort()).toEqual(['tv-1', 'tv-2']);
+
+      const { setDiscoveredDevices } = await import('@shared/storage');
+      expect(setDiscoveredDevices).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({ id: 'tv-1' }),
+          expect.objectContaining({ id: 'tv-2' }),
+        ])
+      );
     });
   });
 

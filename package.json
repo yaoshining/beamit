@@ -26,6 +26,21 @@
     "type": "git",
     "url": "https://github.com/yaoshining/beamit.git"
   },
+  "manifest": {
+    "permissions": [
+      "storage",
+      "activeTab",
+      "system.network",
+      "webRequest"
+    ],
+    "host_permissions": [
+      "http://*/*",
+      "https://*/*",
+      "http://192.168.*/*",
+      "http://10.*/*",
+      "http://172.*/*"
+    ]
+  },
   "dependencies": {
     "@plasmohq/storage": "^1.15.0",
     "autoprefixer": "^10.4.0",

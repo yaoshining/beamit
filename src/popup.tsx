@@ -9,11 +9,12 @@ import { getRecommendedDevices } from '@background-utils/devices/device-recommen
 import type { DeviceRecommendation } from '@background-utils/devices/device-recommender';
 import { startDiscovery, stopDiscovery } from '@background-utils/devices/device-manager';
 import { getDiscoveredDevices } from '@shared/storage';
+import { HTTP_DISCOVERY_TIMEOUT } from '@shared/constants';
 
 type AppView = 'detect' | 'devices' | 'casting';
 
-/** Maximum discovery timeout in milliseconds (T048: 5 second optimization) */
-const DISCOVERY_TIMEOUT_MS = 5000;
+/** Maximum discovery timeout in milliseconds (matches HTTP full subnet scan time) */
+const DISCOVERY_TIMEOUT_MS = HTTP_DISCOVERY_TIMEOUT;
 
 function IndexPopup() {
   // Detection state
@@ -100,9 +101,6 @@ function IndexPopup() {
         setRecommendations(cachedRecs);
       }
 
-      // Run full discovery in background
-      const discoveredDevices = await startDiscovery();
-
       // T048: Enforce 5-second maximum timeout
       const timeoutPromise = new Promise<CastingDevice[]>((resolve) => {
         discoveryTimerRef.current = setTimeout(() => {
@@ -111,8 +109,14 @@ function IndexPopup() {
         }, DISCOVERY_TIMEOUT_MS);
       });
 
+      const updateRecommendations = async (devices: CastingDevice[]) => {
+        if (devices.length === 0) return;
+        const recs = await getRecommendedDevices(devices);
+        setRecommendations(recs);
+      };
+
       const result = await Promise.race([
-        Promise.resolve(discoveredDevices),
+        startDiscovery({ onDevicesUpdated: updateRecommendations }),
         timeoutPromise,
       ]);
 

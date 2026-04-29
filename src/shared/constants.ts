@@ -3,6 +3,13 @@ export const SSDP_MULTICAST_ADDRESS = '239.255.255.250';
 export const SSDP_PORT = 1900;
 export const SSDP_ST = 'urn:schemas-upnp-org:device:MediaRenderer:1';
 export const SSDP_TIMEOUT = 5000;
+
+// HTTP-based UPnP discovery timeout (ms)
+// Chrome MV3 cannot use UDP SSDP, so discovery probes common UPnP HTTP
+// endpoints. Keep the user-facing scan short; the discovery service resolves
+// earlier after the first device is found.
+export const HTTP_DISCOVERY_TIMEOUT = 5000;
+
 export const SSDP_SEARCH_TARGETS = [
   'urn:schemas-upnp-org:device:MediaRenderer:1',
   'urn:schemas-upnp-org:device:MediaServer:1',

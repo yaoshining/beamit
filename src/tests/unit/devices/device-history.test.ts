@@ -8,22 +8,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { DeviceHistory, CastingDevice } from '@shared/types';
 
-// Mock chrome.storage
-const mockStorage: Record<string, any> = {};
-vi.mock('@plasmohq/storage', () => ({
-  Storage: vi.fn().mockImplementation(() => ({
-    get: vi.fn(async (key: string) => mockStorage[key] ?? null),
-    set: vi.fn(async (key: string, value: any) => {
-      mockStorage[key] = value;
-    }),
-    remove: vi.fn(async (key: string) => {
-      delete mockStorage[key];
-    }),
-    clear: vi.fn(async () => {
-      Object.keys(mockStorage).forEach((k) => delete mockStorage[k]);
-    }),
-  })),
-}));
+// Reference to the shared mock storage (initialized in setup.ts)
+const mockStorage = (global as any).__mockStorageData as Record<string, any>;
 
 const sampleDevice: CastingDevice = {
   id: 'dlna-uuid_test_device',
@@ -53,7 +39,7 @@ describe('DeviceHistory', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     // Clear mock storage
-    Object.keys(mockStorage).forEach((k) => delete mockStorage[k]);
+    (global as any).__clearMockStorage();
     deviceHistory = await import('@background-utils/devices/device-history');
   });
 

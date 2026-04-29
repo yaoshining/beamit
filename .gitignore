@@ -4,10 +4,15 @@ coverage/
 # Plasmo build outputs
 .plasmo/
 build/
+dist/
 
 # IDE
 .DS_Store
+Thumbs.db
 *.swp
+.vscode/
+.idea/
+*.tmp
 
 # Dependencies
 node_modules/

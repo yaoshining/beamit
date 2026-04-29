@@ -2,8 +2,16 @@
 // Manages device state and history
 
 import { CastingDevice } from '@shared/types';
+import { HTTP_DISCOVERY_TIMEOUT } from '@shared/constants';
 import { getDiscoveryService } from './dlna-discover';
-import { addToDeviceHistory, getRecentDeviceIds, setRecentDevices, getSettings, setDiscoveredDevices } from '@shared/storage';
+import {
+  addToDeviceHistory,
+  getDiscoveredDevices,
+  getRecentDeviceIds,
+  setRecentDevices,
+  getSettings,
+  setDiscoveredDevices
+} from '@shared/storage';
 
 export interface DeviceManagerState {
   devices: CastingDevice[];
@@ -11,6 +19,10 @@ export interface DeviceManagerState {
   isDiscovering: boolean;
   lastDiscovery: number;
   error: string | null;
+}
+
+export interface StartDiscoveryOptions {
+  onDevicesUpdated?: (devices: CastingDevice[]) => void | Promise<void>;
 }
 
 const state: DeviceManagerState = {
@@ -31,7 +43,9 @@ export function getDeviceState(): DeviceManagerState {
 /**
  * Start device discovery
  */
-export async function startDiscovery(): Promise<CastingDevice[]> {
+export async function startDiscovery(
+  options: StartDiscoveryOptions = {}
+): Promise<CastingDevice[]> {
   if (state.isDiscovering) {
     console.log('[DeviceManager] Discovery already in progress');
     return state.devices;
@@ -41,22 +55,48 @@ export async function startDiscovery(): Promise<CastingDevice[]> {
   state.error = null;
 
   try {
+    const cachedDevices = await getDiscoveredDevices().catch(() => []);
+    const previousDevices = mergeDevices(state.devices, cachedDevices);
+    if (previousDevices.length > 0) {
+      state.devices = previousDevices;
+    }
+
     const service = getDiscoveryService();
     await service.startDiscovery({
-      timeout: 5000,
+      timeout: HTTP_DISCOVERY_TIMEOUT,
+      fastResolveOnFirstDevice: true,
+      onDeviceFound: (device) => {
+        state.devices = mergeDevices([device], state.devices);
+        setDiscoveredDevices(state.devices).catch((err) =>
+          console.warn('[DeviceManager] Failed to cache discovered device:', err)
+        );
+        addToRecentDevice(device);
+        void options.onDevicesUpdated?.(state.devices);
+      },
       onDiscoveryEnd: (devices) => {
-        state.devices = devices;
+        const mergedDevices = devices.length > 0
+          ? mergeDevices(devices, previousDevices)
+          : previousDevices;
+
+        state.devices = mergedDevices;
         state.lastDiscovery = Date.now();
         state.isDiscovering = false;
         console.log('[DeviceManager] Discovery complete. Found', devices.length, 'devices');
-        // T046: Save discovered devices to session storage for quick access
-        setDiscoveredDevices(devices).catch((err) =>
-          console.warn('[DeviceManager] Failed to cache discovered devices:', err)
-        );
+
+        // T046: Save discovered devices to session storage for quick access.
+        // Do not overwrite a usable cache with an empty timeout result; repeated
+        // refreshes can otherwise make a device disappear even though it was just seen.
+        if (mergedDevices.length > 0) {
+          setDiscoveredDevices(mergedDevices).catch((err) =>
+            console.warn('[DeviceManager] Failed to cache discovered devices:', err)
+          );
+        }
+
         // Add each discovered device to recent devices
-        devices.forEach((device) => {
+        mergedDevices.forEach((device) => {
           addToRecentDevice(device);
         });
+        void options.onDevicesUpdated?.(mergedDevices);
       },
       onError: (error) => {
         state.error = error.message;
@@ -72,6 +112,28 @@ export async function startDiscovery(): Promise<CastingDevice[]> {
     console.error('[DeviceManager] Discovery failed:', error);
     return [];
   }
+}
+
+function mergeDevices(
+  primary: CastingDevice[],
+  fallback: CastingDevice[]
+): CastingDevice[] {
+  const merged = new Map<string, CastingDevice>();
+
+  for (const device of fallback) {
+    merged.set(device.id, device);
+  }
+
+  for (const device of primary) {
+    const existing = merged.get(device.id);
+    merged.set(device.id, {
+      ...existing,
+      ...device,
+      lastSeen: Math.max(existing?.lastSeen ?? 0, device.lastSeen)
+    });
+  }
+
+  return Array.from(merged.values());
 }
 
 /**

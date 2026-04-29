@@ -355,8 +355,8 @@ describe('DLNADiscoveryService', () => {
       // so we test the error handling path differently
       const errService = new DLNADiscoveryService();
 
-      // Mock sendSSDPSearch to throw
-      vi.spyOn(errService as any, 'sendSSDPSearch').mockRejectedValue(new Error('Network error'));
+      // Mock httpProbeSubnets to throw
+      vi.spyOn(errService as any, 'httpProbeSubnets').mockRejectedValue(new Error('Network error'));
 
       const devices = await errService.startDiscovery({
         timeout: 50,
@@ -366,6 +366,59 @@ describe('DLNADiscoveryService', () => {
       expect(onError).toHaveBeenCalledTimes(1);
       expect(onError).toHaveBeenCalledWith(new Error('Network error'));
       expect(devices).toHaveLength(0);
+    });
+
+    it('should prioritize high-probability ports and resolve shortly after first HTTP device', async () => {
+      const upnpXml = `<?xml version="1.0"?>
+        <root>
+          <device>
+            <deviceType>urn:schemas-upnp-org:device:MediaRenderer:1</deviceType>
+            <friendlyName>Fast Living Room TV</friendlyName>
+            <UDN>uuid:fast-tv</UDN>
+          </device>
+        </root>`;
+
+      (global.chrome as any).system = {
+        network: {
+          getNetworkInterfaces: vi.fn(async () => [
+            { address: '192.168.3.22', name: 'en0', prefixLength: 24 },
+          ]),
+        },
+      };
+
+      const requestedUrls: string[] = [];
+      const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+        const url = String(input);
+        requestedUrls.push(url);
+
+        if (url === 'http://192.168.3.85:49152/description.xml') {
+          return new Response(upnpXml, {
+            status: 200,
+            headers: { 'Content-Type': 'text/xml' },
+          });
+        }
+
+        throw new DOMException('Connection failed', 'AbortError');
+      });
+
+      const startedAt = Date.now();
+      try {
+        const devices = await service.startDiscovery({ timeout: 5000 });
+        const elapsed = Date.now() - startedAt;
+
+        expect(devices).toHaveLength(1);
+        expect(devices[0]).toMatchObject({
+          name: 'Fast Living Room TV',
+          address: '192.168.3.85',
+          port: 49152,
+        });
+        expect(elapsed).toBeLessThan(2500);
+        expect(requestedUrls.slice(0, 128).every((url) => url.includes(':49152/'))).toBe(true);
+      } finally {
+        service.stopDiscovery();
+        fetchSpy.mockRestore();
+        delete (global.chrome as any).system;
+      }
     });
   });
 

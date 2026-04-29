@@ -3,6 +3,10 @@
 
 import { startDiscovery, stopDiscovery, clearState } from './background-utils/devices/device-manager';
 import { restoreSession } from './background-utils/casting/playback-controller';
+import { detectStreamsFromNetworkRequests } from '@shared/detectors/video-detector';
+
+const MAX_NETWORK_URLS_PER_TAB = 300;
+const tabNetworkRequestUrls = new Map<number, string[]>();
 
 /**
  * Track the currently active tab ID.
@@ -14,6 +18,16 @@ let activeTabId: number | null = null;
 
 chrome.tabs.onActivated.addListener((activeInfo) => {
   activeTabId = activeInfo.tabId;
+});
+
+chrome.tabs.onRemoved?.addListener((tabId) => {
+  tabNetworkRequestUrls.delete(tabId);
+});
+
+chrome.tabs.onUpdated?.addListener((tabId, changeInfo) => {
+  if (changeInfo.status === 'loading') {
+    tabNetworkRequestUrls.delete(tabId);
+  }
 });
 
 /**
@@ -95,7 +109,12 @@ function sendToContentScript(
   tabId: number,
   sendResponse: (response: any) => void
 ): void {
-  chrome.tabs.sendMessage(tabId, { type: 'DETECT_VIDEOS' }, (response) => {
+  const extraUrls = getNetworkRequestUrls(tabId);
+  const detectionMessage = extraUrls.length > 0
+    ? { type: 'DETECT_VIDEOS', extraUrls }
+    : { type: 'DETECT_VIDEOS' };
+
+  chrome.tabs.sendMessage(tabId, detectionMessage, (response) => {
     if (chrome.runtime.lastError) {
       sendResponse({
         success: false,
@@ -105,6 +124,70 @@ function sendToContentScript(
       sendResponse(response);
     }
   });
+}
+
+function rememberNetworkRequestUrl(tabId: number, url: string): void {
+  if (tabId < 0 || !isHttpUrl(url)) return;
+
+  const urls = tabNetworkRequestUrls.get(tabId) ?? [];
+  if (urls.includes(url)) return;
+
+  urls.push(url);
+  if (urls.length > MAX_NETWORK_URLS_PER_TAB) {
+    urls.splice(0, urls.length - MAX_NETWORK_URLS_PER_TAB);
+  }
+  tabNetworkRequestUrls.set(tabId, urls);
+}
+
+function getNetworkRequestUrls(tabId: number): string[] {
+  return tabNetworkRequestUrls.get(tabId) ?? [];
+}
+
+function isHttpUrl(url: string): boolean {
+  return url.startsWith('http://') || url.startsWith('https://');
+}
+
+function isVideoResponse(details: chrome.webRequest.WebResponseCacheDetails): boolean {
+  const contentType = details.responseHeaders?.find(
+    (header) => header.name.toLowerCase() === 'content-type'
+  )?.value?.toLowerCase() ?? '';
+
+  return (
+    contentType.includes('mpegurl') ||
+    contentType.includes('dash+xml') ||
+    contentType.startsWith('video/') ||
+    contentType.includes('application/vnd.apple.mpegurl')
+  );
+}
+
+function installNetworkRequestCapture(): void {
+  const webRequest = (chrome as any).webRequest as typeof chrome.webRequest | undefined;
+  if (!webRequest?.onBeforeRequest || !webRequest?.onCompleted) {
+    console.warn('[Background] chrome.webRequest API not available; network video capture disabled');
+    return;
+  }
+
+  webRequest.onBeforeRequest.addListener(
+    (details) => {
+      if (detectStreamsFromNetworkRequests([details.url]).length > 0) {
+        rememberNetworkRequestUrl(details.tabId, details.url);
+      }
+    },
+    { urls: ['http://*/*', 'https://*/*'] }
+  );
+
+  webRequest.onCompleted.addListener(
+    (details) => {
+      if (
+        isVideoResponse(details) ||
+        detectStreamsFromNetworkRequests([details.url]).length > 0
+      ) {
+        rememberNetworkRequestUrl(details.tabId, details.url);
+      }
+    },
+    { urls: ['http://*/*', 'https://*/*'] },
+    ['responseHeaders']
+  );
 }
 
 /**
@@ -124,3 +207,5 @@ function sendToContentScript(
     console.warn('[Background] Failed to restore session on startup:', error);
   }
 })();
+
+installNetworkRequestCapture();

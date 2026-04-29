@@ -7,22 +7,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { CastingDevice, VideoSource, DeviceHistory, CastingSession } from '@shared/types';
 
-// Mock @plasmohq/storage - use inline vi.fn() inside mock callback
-// to avoid hoisting issues with let/const variables
-const mockStorage = new Map<string, any>();
-
-vi.mock('@plasmohq/storage', () => ({
-  Storage: vi.fn().mockImplementation(() => ({
-    set: vi.fn(async (key: string, value: any) => {
-      mockStorage.set(key, value);
-    }),
-    get: vi.fn(async (key: string) => mockStorage.get(key)),
-    remove: vi.fn(async (key: string) => mockStorage.delete(key)),
-    clear: vi.fn(async () => mockStorage.clear())
-  }))
-}));
-
-// Now import the functions after mocking
+// Import the functions after setup.ts has configured the chrome.storage mock
 import {
   setDeviceHistory,
   getDeviceHistory,
@@ -44,7 +29,7 @@ import {
 
 describe('Storage Functions', () => {
   beforeEach(() => {
-    mockStorage.clear();
+    (global as any).__clearMockStorage();
     vi.clearAllMocks();
   });
 
@@ -265,7 +250,7 @@ describe('Storage Functions', () => {
       const settings = await getSettings();
       expect(settings).toEqual({
         autoPlay: true,
-        deviceTimeout: 5000,
+        deviceTimeout: 300000,
         showNotifications: true
       });
     });

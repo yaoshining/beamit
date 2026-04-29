@@ -296,6 +296,26 @@ describe('VideoDetector', () => {
   });
 
   describe('detectVideoSources', () => {
+    it('should detect HLS streams from captured network request URLs', () => {
+      const results = detectVideoSources(
+        {
+          detectMediaElements: true,
+          detectHLS: true,
+          detectDASH: true,
+          detectIframes: true,
+          detectSourceElements: true,
+          extraUrls: ['https://cdn.example.com/live/master.m3u8?token=abc'],
+        },
+        createElementGetter()
+      );
+
+      expect(results).toHaveLength(1);
+      expect(results[0]).toMatchObject({
+        type: 'hls',
+        url: 'https://cdn.example.com/live/master.m3u8?token=abc',
+      });
+    });
+
     beforeEach(() => {
       vi.restoreAllMocks();
     });

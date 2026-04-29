@@ -8,16 +8,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { CastingDevice } from '@shared/types';
 
-// Mock chrome.storage
-const mockStorage: Record<string, any> = {};
-vi.mock('@plasmohq/storage', () => ({
-  Storage: vi.fn().mockImplementation(() => ({
-    get: vi.fn(async (key: string) => mockStorage[key] ?? null),
-    set: vi.fn(async (key: string, value: any) => {
-      mockStorage[key] = value;
-    }),
-  })),
-}));
+// Reference to the shared mock storage (initialized in setup.ts)
+const mockStorage = (global as any).__mockStorageData as Record<string, any>;
 
 // Mock isDeviceOnline from device-manager
 vi.mock('@background-utils/devices/device-manager', () => ({
@@ -46,7 +38,7 @@ describe('DeviceRecommender', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    Object.keys(mockStorage).forEach((k) => delete mockStorage[k]);
+    (global as any).__clearMockStorage();
     recommender = await import('@background-utils/devices/device-recommender');
   });
 
